@@ -25,6 +25,7 @@ DECKLIST = """
 4 Skewer the Critics
 2 Skullcrack
 """
+
 LANDS = set([
     'Bloodstained Mire',
     'Fiery Islet',
@@ -105,7 +106,7 @@ for n in range(ITERATIONS):
                 n_1_land_hand += 1
                 for t in range(3):
                     if deck[7+t] in LANDS:
-                        n_1_land_hand_next_land_t[t+2] += 1
+                        n_1_land_hand_next_land_t[t] += 1
                         break
     else:
         n_7_card_hand += 1
@@ -117,7 +118,7 @@ for n in range(ITERATIONS):
             n_1_land_hand += 1
             for t in range(3):
                 if deck[7+t] in LANDS:
-                    n_1_land_hand_next_land_t[t+2] += 1
+                    n_1_land_hand_next_land_t[t] += 1
                     break
 
 print("P(7_card) =", n_7_card_hand / ITERATIONS)
@@ -126,6 +127,6 @@ n_7_6_card_hands = n_7_card_hand + n_6_card_hand
 print("P(all_horizon_lands|7_6_card) =", n_all_horizon_lands_hand / n_7_6_card_hands)
 print("P(turn_1_creature|7_6_card) =", n_t1_creature_hand /  n_7_6_card_hands)
 print("P(1_land|7_6_card_hand) =", n_1_land_hand / n_7_6_card_hands)
-print("P(next_land_t2|1_land) =", n_1_land_hand_next_land_t[2] / n_1_land_hand)
-print("P(next_land_t3|1_land) =", n_1_land_hand_next_land_t[3] / n_1_land_hand)
-print("P(next_land_t4|1_land) =", n_1_land_hand_next_land_t[4] / n_1_land_hand)
+print("P(next_land_t2|7_6_card,1_land) =", n_1_land_hand_next_land_t[0] / n_1_land_hand)
+print("P(next_land_t3|7_6_card,1_land) =", n_1_land_hand_next_land_t[1] / n_1_land_hand)
+print("P(next_land_t4|7_6_card,1_land) =", n_1_land_hand_next_land_t[2] / n_1_land_hand)
