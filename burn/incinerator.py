@@ -14,14 +14,14 @@ DECKLIST = """
 4 Sunbaked Canyon
 4 Wooded Foothills
 4 Boros Charm
+4 Chandra's Incinerator
 4 Eidolon of the Great Revel
 4 Goblin Guide
 4 Lava Spike
 4 Lightning Bolt
 2 Lightning Helix
-4 Monastery Swiftspear
 4 Rift Bolt
-4 Searing Blaze
+4 Seal of Fire
 4 Skewer the Critics
 2 Skullcrack
 """
@@ -36,19 +36,15 @@ LANDS = set([
     'Wooded Foothills',
 ])
 
-HORIZON_LANDS= set([
-    'Fiery Islet',
-    'Sunbaked Canyon',
-])
-
 ONE_CMC = set([
     'Goblin Guide',
     'Lava Spike',
     'Lightning Bolt',
-    'Monastery Swiftspear',
     'Rift Bolt',
+    'Seal of Fire',
     'Skewer the Critics',
 ])
+NO_DELAY_BURN = ONE_CMC - set(['Goblin Guide', 'Rift Bolt'])
 
 deck = []
 for line in DECKLIST.splitlines():
@@ -64,29 +60,54 @@ print("sample_hand =", deck[:7])
 
 n_7_card_hand = 0
 n_6_card_hand = 0
-n_1_land_hand = 0
-n_1_land_hand_next_land_t = collections.defaultdict(int)
-n_all_horizon_lands_hand = 0
+
 n_t1_creature_hand = 0
+n_t1_delayed_spell_hand = 0
+n_t2_incinerator_hand = 0
+n_t3_incinerator_hand = 0
 
 def UpdateStats(deck):
-    global n_1_land_hand, n_1_land_hand_next_land_t, n_all_horizon_lands_hand
     global n_t1_creature_hand
+    global n_t1_delayed_spell_hand, n_t2_incinerator_hand, n_t3_incinerator_hand
 
     t1_hand = deck[:7]
-    t1_n_lands = sum(c in LANDS for c in t1_hand)
-    t1_n_horizon_lands = sum(c in HORIZON_LANDS for c in t1_hand)
-
-    if n_lands == 1:
-        n_1_land_hand += 1
-        for t in range(3):
-            if deck[7+t] in LANDS:
-                n_1_land_hand_next_land_t[t] += 1
-                break
-    if t1_n_lands == t1_n_horizon_lands:
-        n_all_horizon_lands_hand += 1
-    if 'Goblin Guide' in hand or 'Monastery Swiftspear' in hand:
+    if 'Goblin Guide' in t1_hand:
         n_t1_creature_hand += 1
+
+    t2_hand = deck[:8]
+    t2_n_lands = sum(c in LANDS for c in t2_hand)
+    t3_hand = deck[:9]
+    t3_n_lands = sum(c in LANDS for c in t3_hand)
+
+    # Assuming we play optimally to cast incinerator
+    needed_spells = None
+    if 'Rift Bolt' in t1_hand:
+        n_t1_delayed_spell_hand += 1
+        needed_spells = NO_DELAY_BURN
+    elif 'Seal of Fire' in t1_hand:
+        n_t1_delayed_spell_hand += 1
+        needed_spells = (
+            ONE_CMC - set(['Goblin Guide', 'Rift Bolt', 'Seal of Fire']))
+    if ("Chandra's Incinerator" in t2_hand and
+        needed_spells and
+        sum(c in needed_spells for c in t2_hand) > 0 and
+        t2_n_lands > 1):
+        n_t2_incinerator_hand += 1
+    else:
+        if 'Rift Bolt' in t2_hand:
+            needed_spells = NO_DELAY_BURN
+        elif 'Seal of Fire' in t2_hand:
+            needed_spells = (
+                ONE_CMC - set(['Goblin Guide', 'Rift Bolt', 'Seal of Fire']))
+        if ("Chandra's Incinerator" in t3_hand and
+            ((needed_spells and
+              sum(c in needed_spells for c in t3_hand) > 0 and
+              t3_n_lands > 1) or
+             (sum(c in NO_DELAY_BURN for c in t3_hand) > 1 and
+              sum(c in NO_DELAY_BURN for c in t3_hand) != sum(c == 'Skewer the Critics' for c in t3_hand) and
+              sum(c in NO_DELAY_BURN for c in t3_hand) != sum(c == 'Seal of Fire' for c in t3_hand) and
+              t3_n_lands > 2))):
+            n_t3_incinerator_hand += 1
 
 # Assuming we always go first
 print("iterations = ", ITERATIONS)
@@ -94,7 +115,6 @@ for n in range(ITERATIONS):
     random.shuffle(deck)
     hand = deck[:7]
     n_lands = sum(c in LANDS for c in hand)
-    n_horizon_lands = sum(c in HORIZON_LANDS for c in hand)
     n_one_cmc = sum(c in ONE_CMC for c in hand)
 
     # Mulligan
@@ -106,7 +126,6 @@ for n in range(ITERATIONS):
         random.shuffle(deck)
         hand = deck[:7]
         n_lands = sum(c in LANDS for c in hand)
-        n_horizon_lands = sum(c in HORIZON_LANDS for c in hand)
         n_one_cmc = sum(c in ONE_CMC for c in hand)
 
         # Mulligan
@@ -127,9 +146,7 @@ print("P(7_card) =", n_7_card_hand / ITERATIONS)
 print("P(6_card) =", n_6_card_hand / ITERATIONS)
 n_7_6_card_hand = n_7_card_hand + n_6_card_hand
 print("P(7_6_card) =", n_7_6_card_hand / ITERATIONS)
-print("P(1_land|7_6_card_hand) =", n_1_land_hand / n_7_6_card_hand)
-print("P(next_land_t2|7_6_card,1_land) =", n_1_land_hand_next_land_t[0] / n_1_land_hand)
-print("P(next_land_t3|7_6_card,1_land) =", n_1_land_hand_next_land_t[1] / n_1_land_hand)
-print("P(next_land_t4|7_6_card,1_land) =", n_1_land_hand_next_land_t[2] / n_1_land_hand)
-print("P(all_horizon_lands|7_6_card) =", n_all_horizon_lands_hand / n_7_6_card_hand)
 print("P(turn_1_creature|7_6_card) =", n_t1_creature_hand /  n_7_6_card_hand)
+print("P(turn_1_delayed_spell|7_6_card) =", n_t1_delayed_spell_hand /  n_7_6_card_hand)
+print("P(turn_2_incinerator|7_6_card) =", n_t2_incinerator_hand / n_7_6_card_hand)
+print("P(turn_3_incinerator|7_6_card) =", n_t3_incinerator_hand / n_7_6_card_hand)
