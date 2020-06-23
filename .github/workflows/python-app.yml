@@ -22,4 +22,6 @@ jobs:
     - name: Run analysis
       run: |
         ./burn/stock.py
+    - name: Run analysis
+      run: |
         ./burn/incinerator.py
