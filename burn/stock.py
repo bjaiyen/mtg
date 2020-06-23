@@ -64,29 +64,31 @@ print("sample_hand =", deck[:7])
 
 n_7_card_hand = 0
 n_6_card_hand = 0
+n_t1_creature_hand = 0
 n_1_land_hand = 0
 n_1_land_hand_next_land_t = collections.defaultdict(int)
-n_all_horizon_lands_hand = 0
-n_t1_creature_hand = 0
+n_all_horizon_lands_hand_t = collections.defaultdict(int)
 
 def UpdateStats(deck):
-    global n_1_land_hand, n_1_land_hand_next_land_t, n_all_horizon_lands_hand
+    global n_1_land_hand, n_1_land_hand_next_land_t
+    global n_all_horizon_lands_hand_t
     global n_t1_creature_hand
 
     t1_hand = deck[:7]
     t1_n_lands = sum(c in LANDS for c in t1_hand)
-    t1_n_horizon_lands = sum(c in HORIZON_LANDS for c in t1_hand)
 
-    if n_lands == 1:
+    if 'Goblin Guide' in hand or 'Monastery Swiftspear' in hand:
+        n_t1_creature_hand += 1
+    if t1_n_lands == 1:
         n_1_land_hand += 1
         for t in range(3):
             if deck[7+t] in LANDS:
                 n_1_land_hand_next_land_t[t] += 1
                 break
-    if t1_n_lands == t1_n_horizon_lands:
-        n_all_horizon_lands_hand += 1
-    if 'Goblin Guide' in hand or 'Monastery Swiftspear' in hand:
-        n_t1_creature_hand += 1
+    for t in range(3):
+        t_hand = deck[:7+t]
+        if sum(c in LANDS for c in t_hand) == sum(c in HORIZON_LANDS for c in t_hand):
+            n_all_horizon_lands_hand_t[t] += 1
 
 # Assuming we always go first
 print("iterations = ", ITERATIONS)
@@ -123,13 +125,15 @@ for n in range(ITERATIONS):
         n_7_card_hand += 1
         UpdateStats(deck)
 
-print("P(7_card) =", n_7_card_hand / ITERATIONS)
-print("P(6_card) =", n_6_card_hand / ITERATIONS)
+print("P(7_card_hand) =", n_7_card_hand / ITERATIONS)
+print("P(6_card_hand) =", n_6_card_hand / ITERATIONS)
 n_7_6_card_hand = n_7_card_hand + n_6_card_hand
-print("P(7_6_card) =", n_7_6_card_hand / ITERATIONS)
-print("P(1_land|7_6_card_hand) =", n_1_land_hand / n_7_6_card_hand)
-print("P(next_land_t2|7_6_card,1_land) =", n_1_land_hand_next_land_t[0] / n_1_land_hand)
-print("P(next_land_t3|7_6_card,1_land) =", n_1_land_hand_next_land_t[1] / n_1_land_hand)
-print("P(next_land_t4|7_6_card,1_land) =", n_1_land_hand_next_land_t[2] / n_1_land_hand)
-print("P(all_horizon_lands|7_6_card) =", n_all_horizon_lands_hand / n_7_6_card_hand)
-print("P(turn_1_creature|7_6_card) =", n_t1_creature_hand /  n_7_6_card_hand)
+print("P(7_or_6_card_hand) =", n_7_6_card_hand / ITERATIONS)
+print("P(turn_1_creature|7_or_6_card_hand) =", n_t1_creature_hand / n_7_6_card_hand)
+print("P(1_land_turn1|7_or_6_card_hand) =", n_1_land_hand / n_7_6_card_hand)
+print("P(next_land_turn2|7_or_6_card_hand,1_land) =", n_1_land_hand_next_land_t[0] / n_1_land_hand)
+print("P(next_land_turn3|7_or_6_card_hand,1_land) =", n_1_land_hand_next_land_t[1] / n_1_land_hand)
+print("P(next_land_turn4|7_or_6_card_hand,1_land) =", n_1_land_hand_next_land_t[2] / n_1_land_hand)
+print("P(all_horizon_lands_turn_1|7_or_6_card_hand) =", n_all_horizon_lands_hand_t[0] / n_7_6_card_hand)
+print("P(all_horizon_lands_turn_2|7_or_6_card_hand) =", n_all_horizon_lands_hand_t[1] / n_7_6_card_hand)
+print("P(all_horizon_lands_turn_3|7_or_6_card_hand) =", n_all_horizon_lands_hand_t[2] / n_7_6_card_hand)

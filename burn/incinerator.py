@@ -142,11 +142,11 @@ for n in range(ITERATIONS):
         n_7_card_hand += 1
         UpdateStats(deck)
 
-print("P(7_card) =", n_7_card_hand / ITERATIONS)
-print("P(6_card) =", n_6_card_hand / ITERATIONS)
+print("P(7_card_hand) =", n_7_card_hand / ITERATIONS)
+print("P(6_card_hand) =", n_6_card_hand / ITERATIONS)
 n_7_6_card_hand = n_7_card_hand + n_6_card_hand
-print("P(7_6_card) =", n_7_6_card_hand / ITERATIONS)
-print("P(turn_1_creature|7_6_card) =", n_t1_creature_hand /  n_7_6_card_hand)
-print("P(turn_1_delayed_spell|7_6_card) =", n_t1_delayed_spell_hand /  n_7_6_card_hand)
-print("P(turn_2_incinerator|7_6_card) =", n_t2_incinerator_hand / n_7_6_card_hand)
-print("P(turn_3_incinerator|7_6_card) =", n_t3_incinerator_hand / n_7_6_card_hand)
+print("P(7_or_6_card_hand) =", n_7_6_card_hand / ITERATIONS)
+print("P(turn_1_creature|7_or_6_card_hand) =", n_t1_creature_hand /  n_7_6_card_hand)
+print("P(turn_1_delayed_spell|7_or_6_card_hand) =", n_t1_delayed_spell_hand /  n_7_6_card_hand)
+print("P(turn_2_incinerator|7_or_6_card_hand) =", n_t2_incinerator_hand / n_7_6_card_hand)
+print("P(turn_3_incinerator|7_or_6_card_hand) =", n_t3_incinerator_hand / n_7_6_card_hand)
