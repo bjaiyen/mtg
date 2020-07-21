@@ -79,12 +79,14 @@ def UpdateStats(deck):
 
     if 'Goblin Guide' in hand or 'Monastery Swiftspear' in hand:
         n_t1_creature_hand += 1
+
     if t1_n_lands == 1:
         n_1_land_hand += 1
         for t in range(3):
             if deck[7+t] in LANDS:
                 n_1_land_hand_next_land_t[t] += 1
                 break
+
     for t in range(3):
         t_hand = deck[:7+t]
         if sum(c in LANDS for c in t_hand) == sum(c in HORIZON_LANDS for c in t_hand):
